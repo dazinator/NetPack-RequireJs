@@ -1,11 +1,11 @@
 {
-  "name": "netpack-typescript-compiler",
-  "description": "A typescript compiler that compiles files in memory.",
+  "name": "netpack-requirejs",
+  "description": "A requirejs optimiser used by NetPack.",
   "author": "Darrell Tunnell",
-  "version": "0.0.4",
+  "version": "0.0.1",
   "main": "dist/compilerhost.js",
   "dependencies": {
-    "typescript": "^1.8.10"
+    "requirejs-memfiles": "^2.1.15-3"
   },
   "devDependencies": {
     "chai": "^3.5.0",
