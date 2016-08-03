@@ -1,0 +1,16 @@
+{
+    "version": "0.1.0",
+    "command": "cmd", 
+    "isShellCommand": true,
+    "showOutput": "always",
+    "args": ["/C"],
+    "echoCommand": true,
+        "tasks": [
+        {
+        "taskName": "Build Type Script",
+        "suppressTaskName": true,
+        "isBuildCommand": true,
+        "args": ["tsc -p \"./src/tsconfig.json\""]
+        }
+    ]
+}
