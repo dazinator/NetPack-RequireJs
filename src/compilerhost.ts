@@ -38,9 +38,15 @@ export interface IRequireJsOptions {
     onBuildWrite: OnBuildReadWriteType
     onModuleBundleComplete: OnModuleBundleCompleteType
 //TODO https://github.com/requirejs/r.js/blob/master/build/example.build.js
-    rawText: {
-        'some/id': 'define(["another/id"], function () {});'
-    },
+//Introduced in 2.1.3: Seed raw text contents for the listed module IDs.
+    //These text contents will be used instead of doing a file IO call for
+    //those modules. Useful if some module ID contents are dynamically
+    //based on user input, which is common in web build tools.
+    rawText: any
+    
+  //  {
+    //    'some/id': 'define(["another/id"], function () {});'
+    //},
 }
 
 
@@ -102,20 +108,272 @@ export class RequireJsOptions implements IRequireJsOptions {
         this._files = v;
     }
 
-    private _optimise: string = "uglify2"
-    public get optimise(): string {
-        return this._optimise;
+    private _optimize: Optimisers = "uglify2"
+    public get optimize(): Optimisers {
+        return this._optimize;
     }
-    public set optimise(v: string) {
-        this._optimise = v;
+    public set optimize(v: Optimisers) {
+        this._optimize = v;
     }
 
+    private _preserveLicenseComments: boolean = false
+    public get preserveLicenseComments(): boolean {
+        return this._preserveLicenseComments;
+    }
+    public set preserveLicenseComments(v: boolean) {
+        this._preserveLicenseComments = v;
+    }
+    
+    private _generateSourceMaps : boolean = true;
+    public get generateSourceMaps() : boolean {
+        return this._generateSourceMaps;
+    }
+    public set generateSourceMaps(v : boolean) {
+        this._generateSourceMaps = v;
+    }
+
+   
+   private _appDir : string;
+   public get appDir() : string {
+       return this._appDir;
+   }
+   public set appDir(v : string) {
+       this._appDir = v;
+   }
+
+   
+   private _baseUrl : string;
+   public get baseUrl() : string {
+       return this._baseUrl;
+   }
+   public set baseUrl(v : string) {
+       this._baseUrl = v;
+   }
+
+   
+   private _dir : string;
+   public get dir() : string {
+       return this._dir;
+   }
+   public set dir(v : string) {
+       this._dir = v;
+   }
+   
+   
+   private _keepBuildDir : boolean;
+   public get keepBuildDir() : boolean {
+       return this._keepBuildDir;
+   }
+   public set keepBuildDir(v : boolean) {
+       this._keepBuildDir = v;
+   }
+   
+
+   
+   private _wrapShim : boolean;
+   public get wrapShim() : boolean {
+       return this._wrapShim;
+   }
+   public set wrapShim(v : boolean) {
+       this._wrapShim = v;
+   }
+   
+   
+   private _locale : string;
+   public get locale() : string {
+       return this._locale;
+   }
+   public set locale(v : string) {
+       this._locale = v;
+   }
+   
+   
+   private _modules : Array<IModule> = new Array<IModule>();
+   public get modules() : Array<IModule> {
+       return this._modules;
+   }
+   public set modules(v : Array<IModule>) {
+       this._modules = v;
+   }
+   
+
+
+private _skipDirOptimize : boolean;
+public get skipDirOptimize() : boolean {
+    return this._skipDirOptimize;
+}
+public set skipDirOptimize(v : boolean) {
+    this._skipDirOptimize = v;
+}
+
+
+// css options
+private _optimizeCss : CssOptimisers = "standard";
+public get optimizeCss() : CssOptimisers {
+    return this._optimizeCss;
+}
+public set optimizeCss(v : CssOptimisers) {
+    this._optimizeCss = v;
+}
+
+
+private _cssIn : string;
+public get cssIn() : string {
+    return this._cssIn;
+}
+public set cssIn(v : string) {
+    this._cssIn = v;
+}
+
+
+private _out : string | OutType;
+public get out() : string | OutType {
+    return this._out;
+}
+public set out(v : string | OutType) {
+    this._out = v;
+}
+
+
+private _cssPrefix : string;
+public get cssPrefix() : string {
+    return this._cssPrefix;
+}
+public set cssPrefix(v : string) {
+    this._cssPrefix = v;
+}
+
+
+private _inlineText : boolean = true;
+public get inlineText() : boolean {
+    return this._inlineText;
+}
+public set inlineText(v : boolean) {
+    this._inlineText = v;
+}
+
+
+private _useStrict : boolean = false;
+public get useStrict() : boolean {
+    return this._useStrict;
+}
+public set useStrict(v : boolean) {
+    this._useStrict = v;
+}
+
+
+private _namespace : string;
+public get namespace() : string {
+    return this._namespace;
+}
+public set namespace(v : string) {
+    this._namespace = v;
+}
+
+
+private _skipPragmas : boolean;
+public get skipPragmas() : boolean {
+    return this._skipPragmas;
+}
+public set skipPragmas(v : boolean) {
+    this._skipPragmas = v;
+}
+
+
+private _skipModuleInsertion : boolean;
+public get skipModuleInsertion() : boolean {
+    return this._skipModuleInsertion;
+}
+public set skipModuleInsertion(v : boolean) {
+    this._skipModuleInsertion = v;
+}
 
 
 
+private _removeCombined : boolean;
+public get removeCombined() : boolean {
+    return this._removeCombined;
+}
+public set removeCombined(v : boolean) {
+    this._removeCombined = v;
+}
 
-    optimize: 'uglify2',
 
+private _insertRequire : string;
+//If the target module only calls define and does not call require() at the
+    //top level, and this build output is used with an AMD shim loader like
+    //almond, where the data-main script in the HTML page is replaced with just
+    //a script to the built file, if there is no top-level require, no modules
+    //will execute. specify insertRequire to have a require([]) call placed at
+    //the end of the file to trigger the execution of modules. More detail at
+    //https://github.com/requirejs/almond
+    //Note that insertRequire does not affect or add to the modules that are
+    //built into the build bundle. It just adds a require([]) call to the end
+    //of the built file for use during the runtime execution of the built code.
+public get insertRequire() : string {
+    return this._insertRequire;
+}
+public set insertRequire(v : string) {
+    this._insertRequire = v;
+}
+
+
+private _wrap : boolean;
+public get wrap() : boolean {
+    return this._wrap;
+}
+public set wrap(v : boolean) {
+    this._wrap = v;
+}
+
+private _logLevel : LogLevels;
+public get logLevel() : LogLevels {
+    return this._logLevel;
+}
+public set logLevel(v : LogLevels) {
+    this._logLevel = v;
+}
+
+private _onBuildRead : OnBuildReadWriteType;
+public get onBuildRead() : OnBuildReadWriteType {
+    return this._onBuildRead;
+}
+public set onBuildRead(v : OnBuildReadWriteType) {
+    this._onBuildRead = v;
+}
+
+private _onBuildWrite : OnBuildReadWriteType;
+public get onBuildWrite() : OnBuildReadWriteType {
+    return this._onBuildWrite;
+}
+public set onBuildWrite(v : OnBuildReadWriteType) {
+    this._onBuildWrite = v;
+}
+
+private _onModuleBundleComplete : OnModuleBundleCompleteType;
+public get onModuleBundleComplete() : OnModuleBundleCompleteType {
+    return this._onModuleBundleComplete;
+}
+public set onModuleBundleComplete(v : OnModuleBundleCompleteType) {
+    this._onModuleBundleComplete = v;
+}
+
+private _rawText : any;
+//Introduced in 2.1.3: Seed raw text contents for the listed module IDs.
+    //These text contents will be used instead of doing a file IO call for
+    //those modules. Useful if some module ID contents are dynamically
+    //based on user input, which is common in web build tools.
+    // e.g {
+    //     'some/id': 'define(["another/id"], function () {});'
+    //     },
+public get rawText() : any {
+    return this._rawText;
+}
+public set rawText(v : any) {
+    this._rawText = v;
+}
+
+  
 }
 
 export class NetPackRequireJs {
@@ -132,261 +390,27 @@ export class NetPackRequireJs {
             optimize: 'uglify2',
             preserveLicenseComments: false,
             generateSourceMaps: true,
-            appDir: appDir,
-            baseUrl: baseUrl,
-            dir: dir,
-            modules: modules
+            appDir: "",
+            baseUrl: "",
+            dir: "",
+            modules: null
         }, function () {
             // var output = inMemoryFiles["dist/output.js"];
-            callback(null, inMemoryFiles);
-            done();
+            //callback(null, inMemoryFiles);
+           // done();
 
         }, function (error) {
             // handle error
-            callback(null, error);
-            done();
+          //  callback(null, error);
+          //  done();
 
         });
 
     }
 
-    getStringFile(path: string): any {
-
-        var filePath = path;
-        var caseSensitive = this.useCaseSensitiveFileNames();
-        var obj = this.sources;
-        for (var propName in obj) {
-            if (obj.hasOwnProperty(propName)) {
-
-                if (!caseSensitive) {
-                    if (propName.toLowerCase() == path.toLowerCase()) {
-                        return obj[propName];
-                    }
-                }
-                else {
-                    if (propName == path) {
-                        return obj[propName];
-                    }
-                }
-            }
-        }
-
-        return undefined;
-    }
-
-    // Implementing CompilerHost interface
-    getSourceFile(filename: string, languageVersion: ts.ScriptTarget, onError?: (message: string) => void): ts.SourceFile {
-
-        var file = this.getStringFile(filename);
-        if (file) {
-            return ts.createSourceFile(filename, file, languageVersion, true);
-        }
-
-        if (path.normalize(filename) === this.getDefaultLibFileName())
-            return this.readFromFile(filename, languageVersion, onError);
-
-        if (this._fallbackToFiles)
-            return this.readFromFile(filename, languageVersion, onError);
-
-        return undefined;
-    }
-
-    readFile(fileName: string): string {
-
-        var file = this.getStringFile(fileName);
-
-        if (file) {
-            return file;
-        }
-
-        if (path.normalize(fileName) === this.getDefaultLibFileName())
-            return ts.sys.readFile(path.normalize(fileName));
-
-        return "";
-    }
-
-    writeFile(filename: string, data: string, writeByteOrderMark: boolean, onError?: (message: string) => void) {
-        this.outputs[filename] = data;
-    };
-
-    fileExists(path: string): boolean {
-        var file = this.getStringFile(path);
-        if (file) {
-            return true;
-        }
-        return false;
-    }
-
-    getNewLine = (): string => ts.sys.newLine;
-
-    useCaseSensitiveFileNames(): boolean {
-        return ts.sys.useCaseSensitiveFileNames;
-    }
-
-    getCurrentDirectory(): string {
-        return ""; //ts.sys.getCurrentDirectory();
-    }
-
-    getDefaultLibFileName(): string {
-        var libFile = path.normalize(ts.getDefaultLibFilePath(this.options));
-        return libFile;
-    }
-
-    getCanonicalFileName(fileName: string): string {
-        // if underlying system can distinguish between two files whose names differs only in cases then file name already in canonical form.
-        // otherwise use toLowerCase as a canonical form.
-        return ts.sys.useCaseSensitiveFileNames ? fileName : fileName.toLowerCase();
-    }
-
-    // Helper functions
-    private readFromFile(filename: string, languageVersion: ts.ScriptTarget, onError?: (message: string) => void): ts.SourceFile {
-        try {
-            var text = ts.sys.readFile(path.normalize(filename));
-        }
-        catch (e) {
-            if (onError) {
-                onError(e.message);
-            }
-
-            text = "";
-        }
-        return text !== undefined ? ts.createSourceFile(filename, text, languageVersion, this._setParentNode) : undefined;
-    }
-
-
-    addSource(contents: string);
-    addSource(name: string, contents: string);
-    addSource(nameOrContents, contents?): void {
-        var source;
-
-        if (typeof contents == 'undefined')
-            source = new StringSource(nameOrContents);
-        else
-            source = new StringSource(contents, nameOrContents);
-
-        this.sources[source.fileName] = source.contents;
-    }
-
-
-    getSourcesFilenames(): string[] {
-        var keys = [];
-        var sources = this.sources;
-        for (var k in sources)
-            if (sources.hasOwnProperty(k))
-                keys.push(k);
-
-        return keys;
-    }
-
 }
 
-export interface ISource {
-    fileName?: string;
-    contents?: string;
-}
-
-export class StringSource implements ISource {
-    private static _counter = 0;
-
-    constructor(public contents: string, public fileName: string = StringSource._nextFilename()) {
-    }
-
-    private static _nextFilename() {
-        return "input_string" + (++StringSource._counter) + '.ts';
-    }
-
-    resetCounter() {
-        StringSource._counter = 0;
-    }
-}
-
-export interface ICompilationResult {
-    sources: { [index: string]: string };
-    errors: string[];
-}
-
-export default class NetPackTypescriptCompiler {
-
-    compileStrings(input, tscArgs?, options?: ts.CompilerOptions, onError?: (message) => void): ICompilationResult {
-
-        var host = new TypescriptCompilerHost(options);
-
-        var sources = [];
-
-        if (Array.isArray(input) && input.length) {
-            // string[]
-            if (typeof input[0] == 'string') {
-                sources.push(new StringSource(input[0])); // ts.map<string, StringSource>(input, );
-            }
-            // Source[]
-            else if (input[0] instanceof StringSource) {
-                sources.concat(input);
-            } else
-                throw new Error('Invalid value for input argument');
-        }
-        // dictionary
-        else if (typeof input == 'object') {
-            for (var k in input) if (input.hasOwnProperty(k))
-                sources.push(new StringSource(input[k], k));
-        }
-        else
-            throw new Error('Invalid value for input argument')
-
-        return this._compile(host, sources, tscArgs, options, onError);
-    }
-
-    _compile(host: TypescriptCompilerHost, sources: ISource[], tscArgs: string, options?: ts.CompilerOptions, onError?: (message) => void);
-    _compile(host: TypescriptCompilerHost, sources: ISource[], tscArgs: string[], options?: ts.CompilerOptions, onError?: (message) => void);
-    _compile(host: TypescriptCompilerHost, sources: ISource[], tscArgs?, options?: ts.CompilerOptions, onError?: (message) => void): ICompilationResult {
-
-        if (typeof tscArgs == "string")
-            tscArgs = tscArgs.split(' ');
-        else
-            tscArgs = tscArgs || [];
-
-        var commandLine = ts.parseCommandLine(tscArgs);
-        var files;
-
-
-        sources.forEach(s => host.addSource(s.fileName, s.contents));
-        files = host.getSourcesFilenames();
-
-        var program = ts.createProgram(files, commandLine.options, host);
-
-        let emitResult = program.emit();
-        let allDiagnostics = ts.getPreEmitDiagnostics(program).concat(emitResult.diagnostics);
-
-        let errors = [];
-        allDiagnostics.forEach(diagnostic => {
-            let { line, character } = diagnostic.file.getLineAndCharacterOfPosition(diagnostic.start);
-            let message = ts.flattenDiagnosticMessageText(diagnostic.messageText, '\n');
-            errors.push({
-                "File": diagnostic.file.fileName,
-                "Line": line + 1,
-                "Char": character + 1,
-                "Message": message
-            });
-        });
-
-        if (errors.length > 0) {
-            forwardErrors(errors, onError);
-        }
-
-        return {
-            sources: host.outputs,
-            errors: errors
-        };
-
-        function forwardErrors(errors, onError) {
-            if (typeof onError == 'function') {
-                errors.forEach(e => {
-                    onError(e);
-                });
-            }
-        }
-    }
-
-}
+   
 
 
 
