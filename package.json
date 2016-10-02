@@ -1,9 +1,9 @@
 {
   "name": "netpack-requirejs",
-  "description": "A requirejs optimiser used by NetPack.",
+  "description": "A requirejs optimiser that uses in memory files, used by NetPack.",
   "author": "Darrell Tunnell",
   "version": "0.0.1",
-  "main": "dist/compilerhost.js",
+  "main": "dist/netpack-requirejs.js",
   "dependencies": {
     "requirejs-memfiles": "^2.1.15-3"
   },
